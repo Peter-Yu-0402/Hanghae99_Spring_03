@@ -1,5 +1,6 @@
 package com.sparta.lv3backoffice.domain.dto.user;
 
+import com.sparta.lv3backoffice.domain.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,9 +13,11 @@ import lombok.Setter;
 public class LoginRequestDto {
     private String email;
     private String password;
-    private boolean isAdmin;
-    private String adminToken;
 
-    public LoginRequestDto() {
+    public User toEntity() {
+        return User.builder()
+                .email(email)
+                .password(password)
+                .build();
     }
 }

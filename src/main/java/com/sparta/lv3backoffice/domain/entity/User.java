@@ -34,11 +34,12 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    public User(String username, String password, String email, Department department, UserRoleEnum role) {
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.department = department;
-        this.role = role;
-    }
+    // 필요하지 않은 것으로 보여 주석 처리함
+//    public User(String username, String password, String email, Department department, UserRoleEnum role) {
+//        this.username = username;
+//        this.password = password;
+//        this.email = email;
+//        this.department = department;
+//        this.role = role;
+//    }
 }
