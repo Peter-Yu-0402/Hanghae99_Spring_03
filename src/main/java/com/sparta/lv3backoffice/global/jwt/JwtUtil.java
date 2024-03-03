@@ -70,17 +70,22 @@ public class JwtUtil {
     }
 
 
-    // 생성된 JWT 를 Header 에 저장
-    public String getJwtFromHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7);
+    // JWT Cookie 에 저장
+    public void addJwtToCookie(String token, HttpServletResponse res) {
+        try {
+            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+
+            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
+            cookie.setPath("/");
+
+            // Response 객체에 Cookie 추가
+            res.addCookie(cookie);
+        } catch (UnsupportedEncodingException e) {
+            log.error(e.getMessage());
         }
-        return null;
     }
 
     // JWT 검증
-    // 토큰 검증
     public boolean validateToken(String token) {  // 자른 순수한 토큰을 받아와
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);  // 이 한 줄로 토큰의 위변조 체크
@@ -98,7 +103,6 @@ public class JwtUtil {
     }
 
     // JWT 에서 사용자 정보 가져오기
-    // 토큰에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody(); // 마지막에 body 부분에 Claims 에 데이터들이 들어있는지 확인.  jwt 가 Claim 기반 웹토큰이니,
     }
