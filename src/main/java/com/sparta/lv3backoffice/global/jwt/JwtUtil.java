@@ -29,7 +29,7 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";  // 쿠키의 NAME 값
 
     // 사용자 권한 값의 KEY (권한을 구분하기 위한 가져오기 위한 key 값을 줌)
-    public static final String AUTHORIZATION_KEY = "auth";  // admin or user 권한에 대한 정보를 jwt 에 담아서 보낼 수 있다.
+    public static final String AUTHORIZATION_KEY = "role";  // admin or user 권한에 대한 정보를 jwt 에 담아서 보낼 수 있다.
 
     // Token 식별자
     public static final String BEARER_PREFIX = "Bearer ";  // Bearer : 우리가 만든 Token 앞에 붙일 용어(규칙)
@@ -85,6 +85,15 @@ public class JwtUtil {
         }
     }
 
+    // JWT 토큰 substring
+    public String substringToken(String tokenValue) {
+        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
+            return tokenValue.substring(7);
+        }
+        log.error("Not Found Token");
+        throw new NullPointerException("Not Found Token");
+    }
+
     // JWT 검증
     public boolean validateToken(String token) {  // 자른 순수한 토큰을 받아와
         try {
@@ -105,5 +114,13 @@ public class JwtUtil {
     // JWT 에서 사용자 정보 가져오기
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody(); // 마지막에 body 부분에 Claims 에 데이터들이 들어있는지 확인.  jwt 가 Claim 기반 웹토큰이니,
+    }
+
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

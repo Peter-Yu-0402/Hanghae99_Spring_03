@@ -2,14 +2,18 @@ package com.sparta.lv3backoffice.domain.controller;
 
 
 import com.sparta.lv3backoffice.domain.dto.tutor.TutorRequestDto;
+import com.sparta.lv3backoffice.domain.dto.tutor.TutorResponseDto;
 import com.sparta.lv3backoffice.domain.entity.Lecture;
 import com.sparta.lv3backoffice.domain.entity.Tutor;
+import com.sparta.lv3backoffice.domain.entity.UserRoleEnum;
 import com.sparta.lv3backoffice.domain.service.TutorService;
 import com.sparta.lv3backoffice.global.exception.NotFoundException;
 import com.sparta.lv3backoffice.global.exception.UnauthorizedException;
+import com.sparta.lv3backoffice.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,28 +29,29 @@ public class TutorController {
 
     // 강사 등록
     @PostMapping("/tutor")
-    public ResponseEntity<?> registerTutor(@RequestBody TutorRequestDto tutorRequestDto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> registerTutor(@RequestBody TutorRequestDto tutorRequestDto, @CookieValue(JwtUtil.AUTHORIZATION_KEY) String token) {
         return handleRequest(() -> {
-            tutorService.registerTutor(tutorRequestDto, token);
-            return ResponseEntity.ok(" 성공적으로 강사 등록이 완료되었습니다.");
+            TutorResponseDto responseDto = tutorService.registerTutor(tutorRequestDto, token);
+            return ResponseEntity.ok(responseDto);
         });
     }
 
+    @Secured(UserRoleEnum.Authority.MANAGER)
     // 선택한 강사 정보 수정
     @PutMapping("/tutor/{tutorId}")
-    public ResponseEntity<?> updateTutor(@PathVariable Long tutorId, @RequestBody TutorRequestDto tutorRequestDto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> updateTutor(@PathVariable Long tutorId, @RequestBody TutorRequestDto requestDto, @CookieValue(JwtUtil.AUTHORIZATION_KEY) String token) {
         return handleRequest(() -> {
-            tutorService.updateTutor(tutorId, tutorRequestDto, token);
-            return ResponseEntity.ok("성공적으로 강사 수정이 완료되었습니다.");
+            TutorResponseDto responseDto = tutorService.updateTutor(tutorId, requestDto, token);
+            return ResponseEntity.ok(responseDto);
         });
     }
 
     // 선택 강사 조회
     @GetMapping("/tutor/{tutorId}")
-    public ResponseEntity<?> getTutor(@PathVariable Long tutorId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getTutor(@PathVariable Long tutorId, @CookieValue(JwtUtil.AUTHORIZATION_KEY) String token) {
         return handleRequest(() -> {
-            tutorService.getTutor(tutorId, token);
-            return ResponseEntity.ok("성공적으로 강사 조회가 완료되었습니다.");
+            TutorResponseDto responseDto = tutorService.getTutor(tutorId, token);
+            return ResponseEntity.ok(responseDto);
         });
     }
 

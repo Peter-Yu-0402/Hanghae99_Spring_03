@@ -8,8 +8,11 @@ import com.sparta.lv3backoffice.domain.entity.UserRoleEnum;
 import com.sparta.lv3backoffice.domain.repository.LectureRepository;
 import com.sparta.lv3backoffice.domain.repository.TutorRepository;
 import com.sparta.lv3backoffice.global.jwt.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CookieValue;
 
 import java.util.List;
 
@@ -19,76 +22,40 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TutorService {
     private final TutorRepository tutorRepository;
-    //private final LectureRepository lectureRepository;
-    private final JwtUtil jwtUtil;
 
     private final String MANAGER_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
+    @Transactional
     // 강사 등록
-    public TutorResponseDto registerTutor(TutorRequestDto tutorRequestDto, String token) {
-
-        // 인증 : 토큰 확인
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("Token Error");
-        }
+    public TutorResponseDto registerTutor(TutorRequestDto requestDto, @CookieValue(JwtUtil.AUTHORIZATION_KEY) String token) {
 
         // 강사 등록
-        Tutor tutor = new Tutor(tutorRequestDto);
-        Tutor saveTutor = tutorRepository.save(tutor);
-        TutorResponseDto tutorResponseDto = new TutorResponseDto(tutor);
-
-        return tutorResponseDto;
-    }
-
-
-    // 선택한 강사 정보 수정
-    public Long updateTutor(Long tutorId, TutorRequestDto tutorRequestDto, String token) {
-
-        //
-        // 인증 : 토큰 확인
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("Token Error");
-        }
-
-        // 인가 : 권한 확인
-        UserRoleEnum role = UserRoleEnum.STAFF;  // 일반 사용자 권한을 넣어놓은다.
-        if (tutorRequestDto.isManager()) {   // boolean type 은 is 로 시작함(규칙), isAdmin // (true)면 관리자 권한으로 회원가입
-            if (!MANAGER_TOKEN.equals(tutorRequestDto.getManagerToken())) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-            }
-            role = UserRoleEnum.MANAGER;  // 위에서 USER -> ADMIN 권한으로 덮어짐.
-        }
-
-        // 강사가 DB 에 존재하는지 확인
-        Tutor tutor = findTutorId(tutorId);
-
-        tutor.update(tutorRequestDto);
-
-        return tutorId;
-    }
-
-
-    // 선택 강사 조회
-    public TutorResponseDto getTutor(Long tutorId, String token) {
-
-        // 인증 : 토큰 확인
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("Token Error");
-        }
-
-        // 강사가 DB 에 존재하는지 확인
-        Tutor tutor = findTutorId(tutorId);
-
+        // TutorRequestDto로 Entity를 만들어 TutorRepository에 저장하고 Tutor 타입의 참조변수 tutor에 할당한다.
+        Tutor tutor = tutorRepository.save(requestDto.toEntity());
+        // tutor를 TutorResponseDto 생성자에 담아 인스턴스를 만든다.
         return new TutorResponseDto(tutor);
     }
 
+    @Transactional
+    // 선택한 강사 정보 수정
+    public TutorResponseDto updateTutor(long tutorId, TutorRequestDto requestDto, @CookieValue(JwtUtil.AUTHORIZATION_KEY) String token) {
+        // 강사가 DB 에 존재하는지 확인
+        Tutor tutor = tutorRepository.findByTutorId(tutorId)
+                        .orElseThrow(()-> new IllegalArgumentException("NOT FOUND TUTOR ID"));
 
-//------------------ 메서드 -------------------
+        tutor.update(requestDto);
+        return new TutorResponseDto(tutor);
+    }
 
-    private Tutor findTutorId(Long tutorId) {
-        return tutorRepository.findById(tutorId).orElseThrow(() ->
-                new IllegalArgumentException("선택한 강사는 존재하지 않습니다.")
-        );
+    @Transactional(readOnly = true)
+    // 선택 강사 조회
+    public TutorResponseDto getTutor(Long tutorId, @CookieValue(JwtUtil.AUTHORIZATION_KEY) String token) {
+
+        // 강사가 DB 에 존재하는지 확인
+        Tutor tutor = tutorRepository.findByTutorId(tutorId)
+                        .orElseThrow(()-> new IllegalArgumentException("NOT FOUND TUTOR ID"));
+
+        return new TutorResponseDto(tutor);
     }
 }
 

@@ -3,9 +3,11 @@ package com.sparta.lv3backoffice.domain.entity;
 import com.sparta.lv3backoffice.domain.dto.tutor.TutorRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor
@@ -45,10 +47,11 @@ public class Tutor {
         this.bio = tutorRequestDto.getBio();
     }
 
-    public void update(TutorRequestDto tutorRequestDto) {
-        this.experienceYears = tutorRequestDto.getExperienceYears();
-        this.company =tutorRequestDto.getCompany();
-        this.phoneNumber = tutorRequestDto.getPhoneNumber();
-        this.bio = tutorRequestDto.getBio();
+    public void update(TutorRequestDto requestDto) {
+        this.tutorName = requestDto.getTutorName();
+        this.experienceYears = requestDto.getExperienceYears();
+        this.company =requestDto.getCompany();
+        this.phoneNumber = requestDto.getPhoneNumber();
+        this.bio = requestDto.getBio();
     }
 }

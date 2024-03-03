@@ -2,8 +2,10 @@ package com.sparta.lv3backoffice.domain.dto.tutor;
 
 import com.sparta.lv3backoffice.domain.entity.Tutor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class TutorResponseDto {
     private Long tutorId;
     private String tutorName;
