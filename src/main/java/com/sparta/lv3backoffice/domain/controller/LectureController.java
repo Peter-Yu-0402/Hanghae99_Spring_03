@@ -59,7 +59,7 @@ public class LectureController {
     }
 
     // 카테고리별 강의 목록 조회
-    @GetMapping("/lecture/{category}")
+    @GetMapping("/lecture/category/{category}")
     public ResponseEntity<?> getLectureByCategory(@PathVariable String category) {
         return handleRequest(() -> {
             List<LectureResponseDto> responseDto = lectureService.getLecturesByCategory(category);
