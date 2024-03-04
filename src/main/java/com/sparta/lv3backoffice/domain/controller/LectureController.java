@@ -1,12 +1,15 @@
 package com.sparta.lv3backoffice.domain.controller;
 
 import com.sparta.lv3backoffice.domain.dto.lecture.LectureRequestDto;
+import com.sparta.lv3backoffice.domain.dto.lecture.LectureResponseDto;
 import com.sparta.lv3backoffice.domain.dto.tutor.TutorRequestDto;
 import com.sparta.lv3backoffice.domain.entity.Lecture;
-import com.sparta.lv3backoffice.domain.entity.Tutor;
+import com.sparta.lv3backoffice.domain.entity.User;
+import com.sparta.lv3backoffice.domain.entity.UserRoleEnum;
 import com.sparta.lv3backoffice.domain.service.LectureService;
 import com.sparta.lv3backoffice.global.exception.NotFoundException;
 import com.sparta.lv3backoffice.global.exception.UnauthorizedException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,37 +27,43 @@ public class LectureController {
 
     // 강의 등록
     @PostMapping("/lecture")
-    public ResponseEntity<?> registerLecture(@RequestBody LectureRequestDto lectureRequestDto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> registerLecture(@RequestBody LectureRequestDto requestDto) {
         return handleRequest(() -> {
-            lectureService.registerLecture(lectureRequestDto, token);
-            return ResponseEntity.ok(" 성공적으로 강의 등록이 완료되었습니다.");
+            LectureResponseDto responseDto = lectureService.registerLecture(requestDto);
+            return ResponseEntity.ok(responseDto);
         });
     }
 
     // 선택한 강의 정보 수정
     @PutMapping("/lecture/{lectureId}")
-    public ResponseEntity<?> updateLecture(@PathVariable Long lectureId, @RequestBody LectureRequestDto lectureRequestDto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> updateLecture(@PathVariable Long lectureId, @RequestBody LectureRequestDto requestDto, HttpServletRequest res) {
+
+        User user = (User) res.getAttribute("user");
+        if (user.getRole() != UserRoleEnum.MANAGER) {
+            throw new UnauthorizedException("사용자는 Manager 권한이 필요합니다.");
+        }
+
         return handleRequest(() -> {
-            lectureService.updateLecture(lectureId, lectureRequestDto, token);
-            return ResponseEntity.ok("성공적으로 강의 수정이 완료되었습니다.");
+            LectureResponseDto responseDto = lectureService.updateLecture(lectureId, requestDto, res);
+            return ResponseEntity.ok(responseDto);
         });
     }
 
     // 선택 강의 조회
     @GetMapping("/lecture/{lectureId}")
-    public ResponseEntity<?> getLecture(@PathVariable Long lectureId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getLecture(@PathVariable Long lectureId) {
         return handleRequest(() -> {
-            lectureService.getTutor(lectureId, token);
-            return ResponseEntity.ok("성공적으로 강의 조회가 완료되었습니다.");
+            LectureResponseDto responseDto = lectureService.getLecture(lectureId);
+            return ResponseEntity.ok(responseDto);
         });
     }
 
     // 카테고리별 강의 목록 조회
     @GetMapping("/lecture/{category}")
-    public ResponseEntity<?> getLectureByCategory(@PathVariable String category, @RequestBody Lecture lecture, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getLectureByCategory(@PathVariable String category) {
         return handleRequest(() -> {
-            List<Lecture> lectures = lectureService.getLecturesByCategory(category, token);
-            return ResponseEntity.ok(lectures);
+            List<LectureResponseDto> responseDto = lectureService.getLecturesByCategory(category);
+            return ResponseEntity.ok(responseDto);
         });
     }
 
