@@ -46,14 +46,14 @@ public class LectureService {
             throw new IllegalArgumentException("Token Error");
         }
 
-        // 인가 : 권한 확인
-        UserRoleEnum role = UserRoleEnum.STAFF;  // 일반 사용자 권한을 넣어놓은다.
-        if (lectureRequestDto.isManager()) {   // boolean type은 is 로 시작함(규칙), isAdmin // (true)면 관리자 권한으로 회원가입
-            if (!MANAGER_TOKEN.equals(lectureRequestDto.getManagerToken())) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-            }
-            role = UserRoleEnum.MANAGER;  // 위에서 USER -> ADMIN 권한으로 덮어짐.
-        }
+//        // 인가 : 권한 확인
+//        UserRoleEnum role = UserRoleEnum.STAFF;  // 일반 사용자 권한을 넣어놓은다.
+//        if (lectureRequestDto.isManager()) {   // boolean type은 is 로 시작함(규칙), isAdmin // (true)면 관리자 권한으로 회원가입
+//            if (!MANAGER_TOKEN.equals(lectureRequestDto.getManagerToken())) {
+//                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+//            }
+//            role = UserRoleEnum.MANAGER;  // 위에서 USER -> ADMIN 권한으로 덮어짐.
+//        }
 
         // 강의가 DB에 존재하는지 확인
         Lecture lecture = findLectureId(lectureId);
