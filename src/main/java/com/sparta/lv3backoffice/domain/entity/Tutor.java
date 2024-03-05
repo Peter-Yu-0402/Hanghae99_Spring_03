@@ -7,6 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Builder
 @Entity
 @Getter
@@ -19,9 +24,9 @@ public class Tutor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tutorId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lecture_id")
-    private Lecture lecture;
+    // 컬럼명이 아니라 자바 변수명
+    @OneToMany(mappedBy = "tutorId", fetch = FetchType.LAZY)
+    private List<Lecture> lecture = new ArrayList<>();
 
     @Column(nullable = false)
     private String tutorName;
@@ -38,14 +43,6 @@ public class Tutor {
     @Column(nullable = false)
     private String bio;
 
-
-    public Tutor(TutorRequestDto tutorRequestDto) {
-        this.tutorName = tutorRequestDto.getTutorName();
-        this.experienceYears = tutorRequestDto.getExperienceYears();
-        this.company =tutorRequestDto.getCompany();
-        this.phoneNumber = tutorRequestDto.getPhoneNumber();
-        this.bio = tutorRequestDto.getBio();
-    }
 
     public void update(TutorRequestDto requestDto) {
         this.tutorName = requestDto.getTutorName();

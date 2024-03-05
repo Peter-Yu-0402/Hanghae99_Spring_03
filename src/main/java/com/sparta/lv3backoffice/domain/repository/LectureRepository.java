@@ -10,4 +10,6 @@ import java.util.Optional;
 
 public interface LectureRepository extends JpaRepository <Lecture, Long>{
     List<Lecture> findByCategoryOrderByCreatedAtDesc(String category);
+    List<Lecture> findByTutorIdOrderByCreatedAtDesc(Tutor tutorId);
+
 }

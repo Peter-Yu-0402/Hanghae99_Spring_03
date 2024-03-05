@@ -3,6 +3,7 @@ package com.sparta.lv3backoffice.domain.service;
 import com.sparta.lv3backoffice.domain.dto.lecture.LectureRequestDto;
 import com.sparta.lv3backoffice.domain.dto.lecture.LectureResponseDto;
 import com.sparta.lv3backoffice.domain.entity.Lecture;
+import com.sparta.lv3backoffice.domain.entity.Tutor;
 import com.sparta.lv3backoffice.domain.repository.LectureRepository;
 import com.sparta.lv3backoffice.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,6 +57,15 @@ public class LectureService {
     public List<LectureResponseDto> getLecturesByCategory(String category) {
 
         List<Lecture> lecture = lectureRepository.findByCategoryOrderByCreatedAtDesc(category);
+        // 해당 카테고리에 강의가 DB에 존재하는지 확인 후 반환
+        return lecture.stream().map(LectureResponseDto::new).collect(Collectors.toList());
+    }
+
+    // 강사별 강의 목록 조회
+    @Transactional
+    public List<LectureResponseDto> getLectureByTutorId(Tutor tutorId) {
+
+        List<Lecture> lecture = lectureRepository.findByTutorIdOrderByCreatedAtDesc(tutorId);
         // 해당 카테고리에 강의가 DB에 존재하는지 확인 후 반환
         return lecture.stream().map(LectureResponseDto::new).collect(Collectors.toList());
     }

@@ -2,6 +2,7 @@ package com.sparta.lv3backoffice.domain.dto.lecture;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.lv3backoffice.domain.entity.Lecture;
+import com.sparta.lv3backoffice.domain.entity.Tutor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LectureResponseDto {
     private Long id;
+    private Tutor tutor;
     private String tutorName;
     private String title;
     private String description;
@@ -24,7 +26,7 @@ public class LectureResponseDto {
 
     public LectureResponseDto(Lecture lecture) {
         this.id = lecture.getLectureId();
-        this.tutorName = lecture.getTutorName();
+        this.tutorName = tutor.getTutorName();
         this.title = lecture.getTitle();
         this.description = lecture.getDescription();
         this.category = lecture.getCategory();

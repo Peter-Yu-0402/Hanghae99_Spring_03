@@ -1,3 +1,4 @@
+
 package com.sparta.lv3backoffice.domain.dto.lecture;
 
 import com.sparta.lv3backoffice.domain.entity.Lecture;
@@ -14,13 +15,5 @@ public class LectureRequestDto {
     private String category;
     private Long price;
 
-    public Lecture toEntity() {
-        return Lecture.builder()
-                .tutorName(tutorName)
-                .title(title)
-                .description(description)
-                .category(category)
-                .price(price)
-                .build();
-    }
+
 }

@@ -4,6 +4,7 @@ import com.sparta.lv3backoffice.domain.dto.lecture.LectureRequestDto;
 import com.sparta.lv3backoffice.domain.dto.lecture.LectureResponseDto;
 import com.sparta.lv3backoffice.domain.dto.tutor.TutorRequestDto;
 import com.sparta.lv3backoffice.domain.entity.Lecture;
+import com.sparta.lv3backoffice.domain.entity.Tutor;
 import com.sparta.lv3backoffice.domain.entity.User;
 import com.sparta.lv3backoffice.domain.entity.UserRoleEnum;
 import com.sparta.lv3backoffice.domain.service.LectureService;
@@ -59,10 +60,18 @@ public class LectureController {
     }
 
     // 카테고리별 강의 목록 조회
-    @GetMapping("/lecture/category/{category}")
+    @GetMapping("/lecture/byCategory/{category}")
     public ResponseEntity<?> getLectureByCategory(@PathVariable String category) {
         return handleRequest(() -> {
             List<LectureResponseDto> responseDto = lectureService.getLecturesByCategory(category);
+            return ResponseEntity.ok(responseDto);
+        });
+    }
+
+    @GetMapping("/lecture/byTutor/{tutorId}")
+    public ResponseEntity<?> getLectureByTutorId(@PathVariable Tutor tutorId) {
+        return handleRequest(() -> {
+            List<LectureResponseDto> responseDto = lectureService.getLectureByTutorId(tutorId);
             return ResponseEntity.ok(responseDto);
         });
     }
