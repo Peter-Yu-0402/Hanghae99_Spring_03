@@ -1,5 +1,6 @@
 package com.sparta.lv3backoffice.domain.entity;
 
+import com.sparta.lv3backoffice.domain.dto.lecture.LectureRequestDto;
 import com.sparta.lv3backoffice.global.entity.Timestamped;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,20 +8,24 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-@Getter
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "lectures")
 public class Lecture extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lectureId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // 다대일 관계 매핑 : tutor 엔티티의 기본 키와 연결될 외래 키 이름
+    @ManyToOne
     @JoinColumn(name = "tutor_id")
     private Tutor tutor;
+
+    @Column(nullable = false)
+    private String tutorName;
 
     @Column(nullable = false)
     private String title;
@@ -34,11 +39,11 @@ public class Lecture extends Timestamped {
     @Column(nullable = false)
     private Long price;
 
-    public Lecture(Tutor tutor, String title, String description, String category, Long price) {
-        this.tutor = tutor;
-        this.title = title;
-        this.description = description;
-        this.category = category;
-        this.price = price;
+    public void update(LectureRequestDto lectureRequestDto) {
+        this.tutorName = lectureRequestDto.getTutorName();
+        this.title = lectureRequestDto.getTitle();
+        this.description = lectureRequestDto.getDescription();
+        this.category = lectureRequestDto.getCategory();
+        this.price = lectureRequestDto.getPrice();
     }
 }

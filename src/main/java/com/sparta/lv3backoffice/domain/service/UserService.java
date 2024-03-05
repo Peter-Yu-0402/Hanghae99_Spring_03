@@ -1,9 +1,8 @@
 package com.sparta.lv3backoffice.domain.service;
 
-
-// 로그인, 가입 서비스
-
-import com.sparta.lv3backoffice.domain.dto.SignupRequestDto;
+import com.sparta.lv3backoffice.domain.dto.user.SignupRequestDto;
+import com.sparta.lv3backoffice.domain.dto.user.SignupResponseDto;
+import com.sparta.lv3backoffice.domain.entity.Department;
 import com.sparta.lv3backoffice.domain.entity.User;
 import com.sparta.lv3backoffice.domain.entity.UserRoleEnum;
 import com.sparta.lv3backoffice.domain.repository.UserRepository;
@@ -18,50 +17,32 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    // 주입 받아옴
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
-    // ADMIN_TOKEN : 일반사용자인지 관리자인지. 토큰을 이용해서 관리자 권한을 준다.
-    // 아래와 같이 ADMIN_TOKEN 을 주면, 해킹되서,
-    // 현업에서는 '관리자'권한을 부여할 수 있는 관리자 페이지를 구현 페이지르 따로 구현하거나
-    // 승인자에 의해 결제하는 과정으로 구현함.
-    // 우리는 일단 관리자 토큰 넣어서 관리자로서 회원가입 할 수 있도록 권한 부여.
+    // ADMIN_TOKEN : 관리자로 회원가입 권한 부여
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     // 회원 가입
-    public void signup(SignupRequestDto requestDto) {  // 회원가입할 데이터를 requestDto 로 받아와
-        String username = requestDto.getUsername();  // requestDto 에서 getUsername 가져와 변수 username 에 담음.
-        String password = passwordEncoder.encode(requestDto.getPassword());  // 평문을 암호화 해서 password 에 담음.
-
-        // 회원 중복 확인
-        Optional<User> checkUsername = userRepository.findByUsername(username);  // Optional 타입으로 받음. null 체크하기 위해 만들어진 타입(값이 없으면 NULL, 있다면 값을 넣어줌) // userRepository 에 findByUsername 쿼리 메서드 작성해보자.
-        if (checkUsername.isPresent()) {   // isPresent : 현재 Optional 에 넣어준 값이 존재하는 지 확인 메서드
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
-        }
+    public SignupResponseDto signup(SignupRequestDto requestDto) {
+        String email = requestDto.getEmail();
+        String password = passwordEncoder.encode(requestDto.getPassword());
 
         // email 중복확인
-        String email = requestDto.getEmail();
         Optional<User> checkEmail = userRepository.findByEmail(email);
         if (checkEmail.isPresent()) {
             throw new IllegalArgumentException("중복된 Email 입니다.");
         }
 
-        // 사용자 ROLE 확인 (권한확인)
-        UserRoleEnum role = UserRoleEnum.USER;  // 일반 사용자 권한을 넣어놓은다.
-        if (requestDto.isAdmin()) {   // boolean type 은 is 로 시작함(규칙), isAdmin // (true)면 관리자 권한으로 회원가입
-            if (!ADMIN_TOKEN.equals(requestDto.getAdminToken())) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
-            }
-            role = UserRoleEnum.ADMIN;  // 위에서 USER -> ADMIN 권한으로 덮어짐.
+        // 관리자 department 부서로 ROLE 확인 (권한확인)
+        UserRoleEnum role = UserRoleEnum.STAFF;
+        if (!requestDto.getDepartment().equals(Department.MARKETING)) {
+            role = UserRoleEnum.MANAGER;  // 위에서 USER -> ADMIN 권한으로 덮어짐.
         }
 
-        // 사용자 department 확인
-        String department = requestDto.getDepartment();
+        // 사용자 등록
+        User user = userRepository.save(requestDto.toEntity(role, password)); // 등록하려면 user entity 클래스 객체를 만듦 : JPA 에서 Entity class 객체 하나가 DB의 한 열과 같다. (안의 내용은 생성자) 생성자를 통해서 만듦. 빨간 밑줄 뜨면 Create Constructor ^^
 
-        // 일반 사용자 등록
-        User user = new User(username, password, email, department, role);  // 등록하려면 user entity 클래스 객체를 만듦 : JPA 에서 Entity class 객체 하나가 DB의 한 열과 같다. (안의 내용은 생성자) 생성자를 통해서 만듦. 빨간 밑줄 뜨면 Create Constructor ^^
-        userRepository.save(user);
+        return new SignupResponseDto(user);
     }
 }

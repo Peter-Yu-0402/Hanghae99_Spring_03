@@ -1,25 +1,26 @@
 package com.sparta.lv3backoffice.domain.entity;
 
-import com.sparta.lv3backoffice.global.entity.Timestamped;
+import com.sparta.lv3backoffice.domain.dto.tutor.TutorRequestDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tutors")
-public class Tutor extends Timestamped {
+public class Tutor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tutorId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lecture_id")
-    private Lecture lecture;
+    @OneToMany(mappedBy = "tutor", cascade = CascadeType.ALL)
+    private List<Lecture> lectureList = new ArrayList<>();
 
     @Column(nullable = false)
     private String tutorName;
@@ -36,12 +37,11 @@ public class Tutor extends Timestamped {
     @Column(nullable = false)
     private String bio;
 
-    public Tutor(Lecture lecture, String tutorName, Long experienceYears, String company, String phoneNumber, String bio) {
-        this.lecture = lecture;
-        this.tutorName = tutorName;
-        this.experienceYears = experienceYears;
-        this.company = company;
-        this.phoneNumber = phoneNumber;
-        this.bio = bio;
+    public void update(TutorRequestDto tutorRequestDto) {
+        this.tutorName = tutorRequestDto.getTutorName();
+        this.experienceYears = tutorRequestDto.getExperienceYears();
+        this.company = tutorRequestDto.getCompany();
+        this.phoneNumber = tutorRequestDto.getPhoneNumber();
+        this.bio = tutorRequestDto.getBio();
     }
 }
