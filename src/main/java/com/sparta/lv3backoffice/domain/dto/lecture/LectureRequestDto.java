@@ -16,4 +16,35 @@ public class LectureRequestDto {
     private Long price;
 
 
+
+
+
+//    public static Lecture toEntity(Tutor tutor) {
+//        return Lecture.builder().build()
+//                .tutorId(tutorId);
+//    }
+
+
+//    public Lecture toEntity() {
+//        Lecture lecture = new Lecture();
+//        Tutor tutor = new Tutor();
+//        lecture.setTutor(tutor);
+//        lecture.setTitle(this.title);
+//        lecture.setDescription(this.description);
+//        lecture.setCategory(this.category);
+//        lecture.setPrice(this.price);
+//        return lecture;
+
+//        return Lecture.builder()
+//                .tutor(tutor)
+//                .tutorName()
+//                .title(title)
+//                .description(description)
+//                .category(category)
+//                .price(price)
+//                .build();
+
+
+
+
 }

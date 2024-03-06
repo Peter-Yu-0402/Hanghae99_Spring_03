@@ -5,6 +5,7 @@ import com.sparta.lv3backoffice.domain.dto.lecture.LectureResponseDto;
 import com.sparta.lv3backoffice.domain.entity.Lecture;
 import com.sparta.lv3backoffice.domain.entity.Tutor;
 import com.sparta.lv3backoffice.domain.repository.LectureRepository;
+import com.sparta.lv3backoffice.domain.repository.TutorRepository;
 import com.sparta.lv3backoffice.global.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,26 +20,41 @@ import java.util.stream.Collectors;
 // 강의 관련 서비스
 public class LectureService {
     private final LectureRepository lectureRepository;
+    private final TutorRepository tutorRepository;
 
     // 강의 등록
     @Transactional
     public LectureResponseDto registerLecture(LectureRequestDto requestDto) {
-        // 강의 등록
-        Lecture lecture = lectureRepository.save(requestDto.toEntity());
+        Lecture lecture = new Lecture(requestDto);
+        Tutor tutor = tutorRepository.findByTutorName(lecture.getTutorName())
+                .orElseThrow(()-> new IllegalArgumentException("Tutor not found"));
 
-        return new LectureResponseDto(lecture);
+        lecture.setTutor(tutor);
+        Lecture saveLecture = lectureRepository.save(lecture);
+        tutorRepository.save(tutor);
+
+        return new LectureResponseDto(saveLecture);
     }
 
     // 선택한 강의 정보 수정
     @Transactional
     public LectureResponseDto updateLecture(Long lectureId, LectureRequestDto requestDto, HttpServletRequest res) {
-
         // 강의가 DB에 존재하는지 확인
         Lecture lecture = lectureRepository.findById(lectureId)
-                            .orElseThrow(()-> new IllegalArgumentException("NOT FOUND LECTURE"));
+                .orElseThrow(()-> new IllegalArgumentException("NOT FOUND LECTURE"));
+
+        Tutor tutor = tutorRepository.findByTutorName(lecture.getTutorName())
+                .orElseThrow(()-> new IllegalArgumentException("Tutor not found"));
+
+        lecture.setTutor(tutor);
+        Lecture saveLecture = lectureRepository.save(lecture);
+
+
+
+
 
         lecture.update(requestDto);
-        return new LectureResponseDto(lecture);
+        return new LectureResponseDto(saveLecture);
     }
 
     // 선택 강의 조회
@@ -63,9 +79,12 @@ public class LectureService {
 
     // 강사별 강의 목록 조회
     @Transactional
-    public List<LectureResponseDto> getLectureByTutorId(Tutor tutorId) {
+    public List<LectureResponseDto> getLectureByTutorId(Tutor tutor) {
 
-        List<Lecture> lecture = lectureRepository.findByTutorIdOrderByCreatedAtDesc(tutorId);
+        Tutor findtutor = tutorRepository.findByTutorId(tutor.getTutorId())
+                .orElseThrow(()-> new IllegalArgumentException("Tutor not found"));
+
+        List<Lecture> lecture = lectureRepository.findByTutorOrderByCreatedAtDesc(tutor);
         // 해당 카테고리에 강의가 DB에 존재하는지 확인 후 반환
         return lecture.stream().map(LectureResponseDto::new).collect(Collectors.toList());
     }

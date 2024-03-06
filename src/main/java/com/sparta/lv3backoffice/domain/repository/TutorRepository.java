@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface TutorRepository extends JpaRepository <Tutor, Long> {
     Optional<Tutor> findByTutorId(Long tutorId);
+
+    Optional<Tutor> findByTutorName(String tutorName);
 }

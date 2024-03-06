@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LectureResponseDto {
     private Long id;
-    private Tutor tutor;
+    private Long tutorId;
     private String tutorName;
     private String title;
     private String description;
@@ -26,7 +26,8 @@ public class LectureResponseDto {
 
     public LectureResponseDto(Lecture lecture) {
         this.id = lecture.getLectureId();
-        this.tutorName = tutor.getTutorName();
+        this.tutorId = lecture.getTutor().getTutorId();
+        this.tutorName = lecture.getTutor().getTutorName();
         this.title = lecture.getTitle();
         this.description = lecture.getDescription();
         this.category = lecture.getCategory();

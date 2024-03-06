@@ -19,11 +19,12 @@ public class Lecture extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long lectureId;
 
-    // 다대일 양방향 관계. 서로 참조할 수 있기 때문에 양방향. 강의를 중복 소유할 수 없기 때문에 다대일.
-    @ManyToOne(fetch = FetchType.LAZY)
-    /// 참조하는 컬럼명
+    @ManyToOne
     @JoinColumn(name = "tutor_id")
-    private Tutor tutorId;
+    private Tutor tutor;
+
+    @Transient
+    private String tutorName;
 
     @Column(nullable = false)
     private String title;
@@ -37,19 +38,34 @@ public class Lecture extends Timestamped {
     @Column(nullable = false)
     private Long price;
 
-    public Lecture(Tutor tutor, String title, String description, String category, Long price) {
-        this.tutorName = tutor.getTutorName();
-        this.title = title;
-        this.description = description;
-        this.category = category;
-        this.price = price;
+    // Lecture 엔티티에 대한 참조를 반환하는 메서드
+    public Tutor getTutor() {
+        return this.tutor;
+    }
+
+    public Lecture(LectureRequestDto requestDto) {
+        this.title = requestDto.getTitle();
+        this.tutorName = requestDto.getTutorName();
+        this.description = requestDto.getDescription();
+        this.category = requestDto.getCategory();
+        this.price = requestDto.getPrice();
     }
 
     public void update(LectureRequestDto lectureRequestDto) {
-        this.tutorName = lectureRequestDto.getTutorName();
         this.title = lectureRequestDto.getTitle();
         this.description = lectureRequestDto.getDescription();
         this.category = lectureRequestDto.getCategory();
         this.price = lectureRequestDto.getPrice();
+    }
+
+    public void setTutor(Tutor tutor) {
+        // 지금 Lecture의 필드 tutorName에 Tutor 인스턴스의 tutorName을 할당하기
+        if (tutor != null) {
+            this.tutor = tutor;
+            this.tutorName = tutor.getTutorName();
+        } else {
+            this.tutor = null;
+            this.tutorName = null;
+        }
     }
 }
